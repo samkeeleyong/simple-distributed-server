@@ -10,7 +10,7 @@ import com.util.SftpService;
 
 public class Node {
 
-	private static final String NODE_NAME = "Node1";
+	private static final String NODE_NAME = "Node2";
 	
 	private static final int PORT = 4444;
 	private static final String SERVER_ADDRESS = "localhost";
@@ -37,13 +37,14 @@ public class Node {
 			while (true) {
 				String line = in.readLine();
 				if (line.startsWith("SENDFILE")) {
-					
 					String[] sendFileParams = line.split(",");
-					System.out.println(NODE_NAME + ": Being asked to send " + sendFileParams[5] + "to " + sendFileParams[1]);
+					
+					System.out.println(NODE_NAME + ": Being asked to send file, " + sendFileParams[6] + ", to " + sendFileParams[5]);
 					SftpService.sendFile(sendFileParams[1],
 							Integer.parseInt(sendFileParams[2]),
 							sendFileParams[3], sendFileParams[4],
-							sendFileParams[5]);
+							sendFileParams[5], sendFileParams[6]);
+					printWriter.println("CONFIRMTASK," + NODE_NAME);
 				}
 			}
 		}
