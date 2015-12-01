@@ -11,8 +11,13 @@ public class SftpService {
 	private static final String OPEN_CHANNEL = "sftp";
 
 	public static void sendFile(String host, int port, String username,
-								String password, String nodeName, String filename) {
-		new Thread(new SenderThread(host, port, username, password, nodeName, filename)).start();
+			String password, String nodeName, String filename, SftpChannel sftpChannel) {
+		new Thread(new SenderThread(host, port, username, password, nodeName, filename, sftpChannel)).start();
+	}
+
+	public static void sendFile(String host, int port, String username,
+			String password, String nodeName, String filename, SftpChannel sftpChannel, String fromUsername, String fromNodeName) {
+		new Thread(new SenderThread(host, port, username, password, nodeName, filename, sftpChannel, fromUsername, fromNodeName)).start();
 	}
 
 	private static class SenderThread implements Runnable {
@@ -23,14 +28,34 @@ public class SftpService {
 		private String password;
 		private String nodeName;
 		private String filename;
+		private SftpChannel sftpChannel;
 		
-		protected SenderThread(String host, int port, String username, String password, String nodeName, String filename) {
+		private String fromUsername;
+		private String fromNodeName;
+
+		protected SenderThread(String host, int port, String username,
+				String password, String nodeName, String filename, SftpChannel sftpChannel) {
 			this.host = host;
 			this.port = port;
 			this.username = username;
 			this.password = password;
 			this.nodeName = nodeName;
 			this.filename = filename;
+			this.sftpChannel = sftpChannel;
+		}
+		
+		protected SenderThread(String host, int port, String username,
+				String password, String nodeName, String filename, SftpChannel sftpChannel, String fromUsername, String fromNodeName) {
+			this.host = host;
+			this.port = port;
+			this.username = username;
+			this.password = password;
+			this.nodeName = nodeName;
+			this.filename = filename;
+			this.sftpChannel = sftpChannel;
+			
+			this.fromUsername = fromUsername;
+			this.fromNodeName = fromNodeName;
 		}
 
 		@Override
@@ -48,23 +73,34 @@ public class SftpService {
 				channel.connect();
 				ChannelSftp sftp = (ChannelSftp) channel;
 				// TODO quick fix
-				System.out
-						.printf("Sending %s to %s \n",
-								Constants.GATEWAY_DIRECTORY + filename, String
-										.format("/home/%s/%s/%s", username,
-												nodeName, filename));
-				sftp.put(Constants.GATEWAY_DIRECTORY + filename, String.format("/home/%s/%s/%s", username, nodeName, filename));
+				
+				if (sftpChannel.equals(SftpChannel.GATEWAY)) {
+					System.out.printf("Sending %s to %s \n",
+							Constants.GATEWAY_DIRECTORY + filename,
+							String.format("/home/%s/%s/%s", username,nodeName, filename));
+					
+					sftp.put(Constants.GATEWAY_DIRECTORY + filename, 
+							 String.format("/home/%s/%s/%s", username, nodeName, filename));
+				} else if (sftpChannel.equals(SftpChannel.NODE)) {
+					System.out.printf("Sending %s to %s \n",
+							String.format("/home/%s/%s/%s", fromUsername, fromNodeName, filename),
+							String.format("/home/%s/%s/%s", username,nodeName, filename));
+					
+					sftp.put(String.format("/home/%s/%s/%s", fromUsername, fromNodeName, filename), 
+							 String.format("/home/%s/%s/%s", username, nodeName, filename));
+				}
 			} catch (JSchException e) {
 				e.printStackTrace();
 			} catch (SftpException e) {
 				e.printStackTrace();
 			} finally {
-//				try {
-//					Files.delete(Paths.get(Constants.GATEWAY_DIRECTORY + filename));
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-				
+				// try {
+				// Files.delete(Paths.get(Constants.GATEWAY_DIRECTORY +
+				// filename));
+				// } catch (IOException e) {
+				// e.printStackTrace();
+				// }
+
 				if (channel != null) {
 					channel.disconnect();
 				}

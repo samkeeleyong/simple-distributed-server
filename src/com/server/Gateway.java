@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.util.Constants;
+import com.util.SftpChannel;
 import com.util.SftpService;
 
 public class Gateway {
@@ -53,7 +54,8 @@ public class Gateway {
 		private Socket socket;
 		private BufferedReader in; // to receive messages
 		private PrintWriter printWriter; // to send messages
-
+		private String nodeName;
+		
 		public NodeChannelThread(Socket socket) {
 			this.socket = socket;
 		}
@@ -71,7 +73,7 @@ public class Gateway {
 													  registerDetails[4],
 													  registerDetails[5]),
 									  printWriter);
-				
+				nodeName = registerDetails[1];
 				while (true) {
 					String input = in.readLine();
 					
@@ -82,6 +84,9 @@ public class Gateway {
 				}
 			} catch (IOException e) {
 				System.out.println(e);
+			} catch (NullPointerException npe) {
+				System.out.println("Gateway:" + nodeName + " just died!");
+				NodeRegistry.setDead(nodeName);
 			} finally {
 				try {
 					socket.close();
@@ -118,7 +123,7 @@ public class Gateway {
                         	SftpService.sendFile(randomNode.sftpDetails.host, 
 			                        			(int)randomNode.sftpDetails.port,
 			                        			randomNode.sftpDetails.username,
-			                        			randomNode.sftpDetails.password, randomNode.nodeName, filename);
+			                        			randomNode.sftpDetails.password, randomNode.nodeName, filename, SftpChannel.GATEWAY);
                         	randomNode.filenames.add(filename);
                         	
                         	System.out.println("Finished new file " + filename + " to " + randomNode.nodeName);

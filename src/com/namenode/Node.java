@@ -6,11 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.util.SftpChannel;
 import com.util.SftpService;
 
 public class Node {
 
-	private static final String NODE_NAME = "Node2";
+	private static final String NODE_NAME = "Node3";
 	
 	private static final int PORT = 4444;
 	private static final String SERVER_ADDRESS = "localhost";
@@ -43,7 +44,7 @@ public class Node {
 					SftpService.sendFile(sendFileParams[1],
 							Integer.parseInt(sendFileParams[2]),
 							sendFileParams[3], sendFileParams[4],
-							sendFileParams[5], sendFileParams[6]);
+							sendFileParams[5], sendFileParams[6], SftpChannel.NODE, USERNAME, NODE_NAME);
 					printWriter.println("CONFIRMTASK," + NODE_NAME);
 				}
 			}
