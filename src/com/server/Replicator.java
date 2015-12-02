@@ -1,6 +1,14 @@
 package com.server;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+
+import com.util.Constants;
 
 /*
  * @desc Thread to make sure the cluster
@@ -35,6 +43,18 @@ public class Replicator implements Runnable {
 			NodeRegistry.addTask(fromNode.nodeName);
 			toNode.filenames.add(inconsistentEntry.filename);
 			System.out.println("Finished Sending Replicate request");
+			
+			// Delete files if meets two-thirds rule.
+			Map<String, Integer> consistentFiles = NodeRegistry.getConsistentFiles();
+			
+	        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(Constants.GATEWAY_DIRECTORY))) {
+	            for (Path path : directoryStream) {
+	                if (consistentFiles.containsKey(path.getFileName().toString())) {
+	                	Files.delete(path);
+	                	System.out.println("Replicator: Deleting file:" + path + " in GATEWAY for satisfying the two-third rule.");
+	                }
+	            }
+	        } catch (IOException ex) {}
 		}
 	}
 

@@ -72,7 +72,6 @@ public class SftpService {
 				channel = session.openChannel(OPEN_CHANNEL);
 				channel.connect();
 				ChannelSftp sftp = (ChannelSftp) channel;
-				// TODO quick fix
 				
 				if (sftpChannel.equals(SftpChannel.GATEWAY)) {
 					System.out.printf("Sending %s to %s \n",
@@ -94,13 +93,6 @@ public class SftpService {
 			} catch (SftpException e) {
 				e.printStackTrace();
 			} finally {
-				// try {
-				// Files.delete(Paths.get(Constants.GATEWAY_DIRECTORY +
-				// filename));
-				// } catch (IOException e) {
-				// e.printStackTrace();
-				// }
-
 				if (channel != null) {
 					channel.disconnect();
 				}

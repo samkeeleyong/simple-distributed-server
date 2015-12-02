@@ -64,17 +64,32 @@ public class NodeRegistry {
 		return false;
 	}
 
+	/*
+	 * @return List of Nodes that are alive.
+	 */
 	public static List<NodeEntry> listEntries() {
 		List<NodeEntry> list = new ArrayList<NodeEntry>();
 
-		for (NodeEntry nodeEntry : list) {
+		for (NodeEntry nodeEntry : NodeRegistry.entries) {
 			if (nodeEntry.isAlive) {
 				list.add(nodeEntry);
 			}
 		}
-		return NodeRegistry.entries;
+		return list;
 	}
 
+	public static Map<String, Integer> getConsistentFiles() {
+		Map<String, Integer> map = getFileStat();
+		Map<String, Integer> newMap = new HashMap<>();
+		int fileNumRequirement = calculateFileNumRequirement();
+		
+		for (String filename: map.keySet()) {
+			if (map.get(filename) >= fileNumRequirement) {
+				newMap.put(filename, map.get(filename));
+			}
+		}
+		return newMap;
+	}
 	/*
 	 * @desc Return a list of InconsistentEntry objects that includes nodes that
 	 * are not two-thirds in nodes.
@@ -83,10 +98,10 @@ public class NodeRegistry {
 		List<InconsistentEntry> inconsistentEntries = new ArrayList<>();
 
 		if (!listEntries().isEmpty()) {
-
+			
 			int fileNumRequirement = calculateFileNumRequirement();
 			Map<String, Integer> fileStats = getFileStat();
-
+			
 			for (String filename : fileStats.keySet()) {
 				if (fileStats.get(filename) < fileNumRequirement) {
 					InconsistentEntry ie = new InconsistentEntry();
@@ -96,6 +111,7 @@ public class NodeRegistry {
 				}
 			}
 		}
+		
 		return inconsistentEntries;
 	}
 
