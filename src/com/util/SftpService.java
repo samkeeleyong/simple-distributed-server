@@ -93,6 +93,7 @@ public class SftpService {
 			} catch (SftpException e) {
 				e.printStackTrace();
 			} finally {
+//            	System.out.println("Finished new file " + filename + " to " + randomNode.nodeName);
 				if (channel != null) {
 					channel.disconnect();
 				}

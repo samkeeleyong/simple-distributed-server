@@ -3,9 +3,11 @@ package com.server;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NodeRegistry {
@@ -18,8 +20,8 @@ public class NodeRegistry {
 	private static final List<NodeEntry> entries = new ArrayList<NodeEntry>();
 
 	public static synchronized void register(String nodeName,
-			SftpDetails sftpDetails, PrintWriter printWriter) {
-		entries.add(new NodeEntry(nodeName, sftpDetails, printWriter));
+			SftpDetails sftpDetails, PrintWriter printWriter, String nodeHttpHost, int nodeHttpPort) {
+		entries.add(new NodeEntry(nodeName, sftpDetails, printWriter, nodeHttpHost, nodeHttpPort));
 	}
 
 	public static synchronized void setDead(String nodeName) {
@@ -29,12 +31,7 @@ public class NodeRegistry {
 			}
 		}
 	}
-
-	// TODO
-	// private static void findEntryWithTask(int numOfTasks) {
-	//
-	// }
-
+	
 	public static boolean addTask(String nodeName) {
 		List<NodeEntry> list = listEntries();
 		
@@ -64,6 +61,32 @@ public class NodeRegistry {
 		return false;
 	}
 
+	/*
+	 * @desc Function to decide which node entry to 
+	 * 		 deliver a file to another node.
+	 * 		 Filters based on the filename (of course) and
+	 * 		 who has the least "tasks".
+	 */
+	public static NodeRegistry.NodeEntry decide(String filename) {
+		List<NodeRegistry.NodeEntry> list = NodeRegistry.getEntriesWithFile(filename);
+		System.out.println("Entries with file: " + list);
+		int numOfTasks = 0;
+		boolean toContinue = true;
+		
+		while (!list.isEmpty() && toContinue) {
+			for (NodeRegistry.NodeEntry nodeEntry: list) {
+				if (nodeEntry.tasks.intValue() == numOfTasks) {
+					toContinue = false;
+					return nodeEntry;
+				}
+			}
+			
+			numOfTasks++;
+		}
+		
+		return null;
+	}
+	
 	/*
 	 * @return List of Nodes that are alive.
 	 */
@@ -183,6 +206,17 @@ public class NodeRegistry {
 		return listEntries().get(new Random().nextInt(listEntries().size()));
 	}
 
+
+	public static List<String> getAllFiles() {
+		List<NodeEntry> list = listEntries();
+		Set<String> set = new HashSet<>();
+		
+		for (NodeEntry entry: list) {
+			set.addAll(entry.filenames);
+		}
+		return new ArrayList<String>(set);
+	}
+	
 	public static String printCurrentState() {
 		StringBuilder sb = new StringBuilder();
 		System.out.println("Printing Current state of NodeRegistry. ");
@@ -201,28 +235,34 @@ public class NodeRegistry {
 		return sb.toString();
 	}
 
-	static class NodeEntry {
+	public static class NodeEntry {
 		String nodeName;
 		boolean isAlive = true;
 		SftpDetails sftpDetails;
 		List<String> filenames;
 		AtomicInteger tasks = new AtomicInteger(0);
 		PrintWriter printWriter;
+		public String nodeHttpHost;
+		public int nodeHttpPort;
 
 		NodeEntry(String nodeName, SftpDetails sftpDetails,
-				PrintWriter printWriter) {
+				PrintWriter printWriter, String nodeHttpHost, int nodeHttpPort) {
 			this.nodeName = nodeName;
 			this.filenames = new ArrayList<>();
 			this.sftpDetails = sftpDetails;
 			this.printWriter = printWriter;
+			
+			this.nodeHttpHost = nodeHttpHost;
+			this.nodeHttpPort = nodeHttpPort;
 		}
 
 		@Override
 		public String toString() {
-			return "RegistryEntry [nodeName=" + nodeName + ", isAlive="
-					+ isAlive + ", sftpDetails=" + sftpDetails + ", filenames="
-					+ filenames + ", tasks=" + tasks.intValue()
-					+ ", printWriter=" + printWriter + "]";
+			return "NodeEntry [nodeName=" + nodeName + ", isAlive=" + isAlive
+					+ ", sftpDetails=" + sftpDetails + ", filenames="
+					+ filenames + ", tasks=" + tasks + ", printWriter="
+					+ printWriter + ", nodeHttpHost=" + nodeHttpHost
+					+ ", nodeHttpPort=" + nodeHttpPort + "]";
 		}
 	}
 

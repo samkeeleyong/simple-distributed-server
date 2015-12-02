@@ -26,7 +26,7 @@ public class Replicator implements Runnable {
 		for (NodeRegistry.InconsistentEntry inconsistentEntry : inconsistentFiles) {
 			
 			System.out.println("Replicator:Attempting to replicate " + inconsistentEntry.filename);
-			NodeRegistry.NodeEntry fromNode = decide(inconsistentEntry.filename);
+			NodeRegistry.NodeEntry fromNode = NodeRegistry.decide(inconsistentEntry.filename);
 			// readjust files one at a time per iteration
 			NodeRegistry.NodeEntry toNode = inconsistentEntry.entriesNotHaving.get(0);
 			
@@ -58,30 +58,5 @@ public class Replicator implements Runnable {
 		}
 	}
 
-	// use task and filename variables to decide/filter
-	/*
-	 * @desc Function to decide which node entry to 
-	 * 		 deliver a file to another node.
-	 * 		 Filters based on the filename (of course) and
-	 * 		 who has the least "tasks".
-	 */
-	private static NodeRegistry.NodeEntry decide(String filename) {
-		List<NodeRegistry.NodeEntry> list = NodeRegistry.getEntriesWithFile(filename);
-		
-		int numOfTasks = 0;
-		boolean toContinue = true;
-		
-		while (!list.isEmpty() && toContinue) {
-			for (NodeRegistry.NodeEntry nodeEntry: list) {
-				if (nodeEntry.tasks.intValue() == numOfTasks) {
-					toContinue = false;
-					return nodeEntry;
-				}
-			}
-			
-			numOfTasks++;
-		}
-		
-		return null;
-	}
+
 }
