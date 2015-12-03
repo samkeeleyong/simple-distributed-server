@@ -33,13 +33,14 @@ public class Replicator implements Runnable {
 			System.out.println("FROMNODE: " + fromNode);
 			System.out.println("TONODE: " + toNode);
 			
-			fromNode.printWriter.println(String.format("SENDFILE,%s,%d,%s,%s,%s,%s",
+			fromNode.printWriter.println(String.format("SENDFILE,%s,%d,%s,%s,%s,%s,%s",
 												toNode.sftpDetails.host,
 												toNode.sftpDetails.port,
 												toNode.sftpDetails.username,
 												toNode.sftpDetails.password, 
 												toNode.nodeName,
-												inconsistentEntry.filename));
+												inconsistentEntry.filename, 
+												toNode.nodeContextPath));
 			NodeRegistry.addTask(fromNode.nodeName);
 			toNode.filenames.add(inconsistentEntry.filename);
 			System.out.println("Finished Sending Replicate request");

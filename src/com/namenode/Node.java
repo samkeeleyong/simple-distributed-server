@@ -15,9 +15,11 @@ import com.util.SftpService;
 
 public class Node {
 
-	private static final String NODE_NAME = "Node1";
-	private static final int HTTP_PORT = 8081;
+	private static final String NODE_NAME = "Node2";
+	private static final int HTTP_PORT = 8082;
 	private static final String HTTP_HOST = "localhost";
+	private static final String NODE_CONTEXT_PATH = "home"; // linux
+//	private static final Object NODE_CONTEXT_PATH = "C:\\"; // windows
 	
 	
 	private static final int PORT = 4444;
@@ -27,6 +29,7 @@ public class Node {
 	private static final String SFTP_PORT = "22";
 	private static final String USERNAME = "guestuser";
 	private static final String PASSWORD = "guestuser";
+	
 
 	private static BufferedReader in;
 	private static PrintWriter printWriter;
@@ -45,8 +48,8 @@ public class Node {
 			printWriter = new PrintWriter(socket.getOutputStream(), true);
 
 			// send register message
-			printWriter.println(String.format("REGISTER,%s,%s,%s,%s,%s,%s,%d",
-					NODE_NAME, HOST, Long.parseLong(SFTP_PORT), USERNAME, PASSWORD, HTTP_HOST, HTTP_PORT));
+			printWriter.println(String.format("REGISTER,%s,%s,%s,%s,%s,%s,%d,%s",
+					NODE_NAME, HOST, Long.parseLong(SFTP_PORT), USERNAME, PASSWORD, HTTP_HOST, HTTP_PORT, NODE_CONTEXT_PATH));
 
 			// Process all messages from server, according to the protocol.
 			while (true) {
@@ -58,7 +61,8 @@ public class Node {
 					SftpService.sendFile(sendFileParams[1],
 							Integer.parseInt(sendFileParams[2]),
 							sendFileParams[3], sendFileParams[4],
-							sendFileParams[5], sendFileParams[6], SftpChannel.NODE, USERNAME, NODE_NAME);
+							sendFileParams[5], sendFileParams[6], SftpChannel.NODE, USERNAME, NODE_NAME, 
+							NODE_CONTEXT_PATH, sendFileParams[7]);
 					printWriter.println("CONFIRMTASK," + NODE_NAME);
 				}
 			}

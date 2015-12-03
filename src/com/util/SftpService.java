@@ -16,8 +16,10 @@ public class SftpService {
 	}
 
 	public static void sendFile(String host, int port, String username,
-			String password, String nodeName, String filename, SftpChannel sftpChannel, String fromUsername, String fromNodeName) {
-		new Thread(new SenderThread(host, port, username, password, nodeName, filename, sftpChannel, fromUsername, fromNodeName)).start();
+			String password, String nodeName, String filename, SftpChannel sftpChannel, String fromUsername, String fromNodeName, 
+			String fromNodeContextPath, String toNodeContextPath) {
+		new Thread(new SenderThread(host, port, username, password, nodeName, filename, sftpChannel, fromUsername, fromNodeName, 
+									fromNodeContextPath, toNodeContextPath)).start();
 	}
 
 	private static class SenderThread implements Runnable {
@@ -32,6 +34,9 @@ public class SftpService {
 		
 		private String fromUsername;
 		private String fromNodeName;
+		
+		private String fromNodeContextPath;
+		private String toNodeContextPath;
 
 		protected SenderThread(String host, int port, String username,
 				String password, String nodeName, String filename, SftpChannel sftpChannel) {
@@ -45,7 +50,8 @@ public class SftpService {
 		}
 		
 		protected SenderThread(String host, int port, String username,
-				String password, String nodeName, String filename, SftpChannel sftpChannel, String fromUsername, String fromNodeName) {
+				String password, String nodeName, String filename, SftpChannel sftpChannel, String fromUsername, String fromNodeName,
+				String fromNodeContextPath, String toNodeContextPath) {
 			this.host = host;
 			this.port = port;
 			this.username = username;
@@ -56,6 +62,9 @@ public class SftpService {
 			
 			this.fromUsername = fromUsername;
 			this.fromNodeName = fromNodeName;
+			
+			this.fromNodeContextPath = fromNodeContextPath;
+			this.toNodeContextPath = toNodeContextPath;
 		}
 
 		@Override
@@ -82,11 +91,11 @@ public class SftpService {
 							 String.format("/home/%s/%s/%s", username, nodeName, filename));
 				} else if (sftpChannel.equals(SftpChannel.NODE)) {
 					System.out.printf("Sending %s to %s \n",
-							String.format("/home/%s/%s/%s", fromUsername, fromNodeName, filename),
-							String.format("/home/%s/%s/%s", username,nodeName, filename));
+							String.format("/%s/%s/%s/%s", fromNodeContextPath, fromUsername, fromNodeName, filename),
+							String.format("/%s/%s/%s/%s", toNodeContextPath, username,nodeName, filename));
 					
-					sftp.put(String.format("/home/%s/%s/%s", fromUsername, fromNodeName, filename), 
-							 String.format("/home/%s/%s/%s", username, nodeName, filename));
+					sftp.put(String.format("/%s/%s/%s/%s", fromNodeContextPath, fromUsername, fromNodeName, filename), 
+							 String.format("/%s/%s/%s/%s", toNodeContextPath, username, nodeName, filename));
 				}
 			} catch (JSchException e) {
 				e.printStackTrace();

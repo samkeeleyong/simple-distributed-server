@@ -86,7 +86,8 @@ public class Gateway {
 													  registerDetails[4],
 													  registerDetails[5]),
 									  printWriter,
-									  registerDetails[6], Integer.parseInt(registerDetails[7]));
+									  registerDetails[6], Integer.parseInt(registerDetails[7]), 
+									  registerDetails[8]);
 				
 				nodeName = registerDetails[1];
 				while (true) {

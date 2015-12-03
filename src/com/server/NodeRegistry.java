@@ -20,8 +20,8 @@ public class NodeRegistry {
 	private static final List<NodeEntry> entries = new ArrayList<NodeEntry>();
 
 	public static synchronized void register(String nodeName,
-			SftpDetails sftpDetails, PrintWriter printWriter, String nodeHttpHost, int nodeHttpPort) {
-		entries.add(new NodeEntry(nodeName, sftpDetails, printWriter, nodeHttpHost, nodeHttpPort));
+			SftpDetails sftpDetails, PrintWriter printWriter, String nodeHttpHost, int nodeHttpPort, String nodeContextPath) {
+		entries.add(new NodeEntry(nodeName, sftpDetails, printWriter, nodeHttpHost, nodeHttpPort, nodeContextPath));
 	}
 
 	public static synchronized void setDead(String nodeName) {
@@ -244,9 +244,10 @@ public class NodeRegistry {
 		PrintWriter printWriter;
 		public String nodeHttpHost;
 		public int nodeHttpPort;
+		public String nodeContextPath;
 
 		NodeEntry(String nodeName, SftpDetails sftpDetails,
-				PrintWriter printWriter, String nodeHttpHost, int nodeHttpPort) {
+				PrintWriter printWriter, String nodeHttpHost, int nodeHttpPort, String nodeContextPath) {
 			this.nodeName = nodeName;
 			this.filenames = new ArrayList<>();
 			this.sftpDetails = sftpDetails;
@@ -254,6 +255,8 @@ public class NodeRegistry {
 			
 			this.nodeHttpHost = nodeHttpHost;
 			this.nodeHttpPort = nodeHttpPort;
+			
+			this.nodeContextPath = nodeContextPath;
 		}
 
 		@Override
