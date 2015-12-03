@@ -15,8 +15,8 @@ import com.util.SftpService;
 
 public class Node {
 
-	private static final String NODE_NAME = "Node2";
-	private static final int HTTP_PORT = 8082;
+	private static final String NODE_NAME = "Node5";
+	private static final int HTTP_PORT = 8085;
 	private static final String HTTP_HOST = "10.100.201.99";
 	private static final String NODE_CONTEXT_PATH = "/home"; // linux
 //	private static final Object NODE_CONTEXT_PATH = "C:\\"; // windows

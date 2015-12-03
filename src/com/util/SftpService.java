@@ -70,6 +70,8 @@ public class SftpService {
 			
 			this.fromNodeContextPath = fromNodeContextPath;
 			this.toNodeContextPath = toNodeContextPath;
+			
+			this.printWriter = printWriter;
 		}
 
 		@Override
