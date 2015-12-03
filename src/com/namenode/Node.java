@@ -17,15 +17,15 @@ public class Node {
 
 	private static final String NODE_NAME = "Node2";
 	private static final int HTTP_PORT = 8082;
-	private static final String HTTP_HOST = "localhost";
-	private static final String NODE_CONTEXT_PATH = "home"; // linux
+	private static final String HTTP_HOST = "10.100.201.99";
+	private static final String NODE_CONTEXT_PATH = "/home"; // linux
 //	private static final Object NODE_CONTEXT_PATH = "C:\\"; // windows
 	
 	
 	private static final int PORT = 4444;
-	private static final String SERVER_ADDRESS = "localhost";
+	private static final String SERVER_ADDRESS = "10.100.210.206";
 
-	private static final String HOST = "localhost";
+	private static final String HOST = "10.100.201.99";
 	private static final String SFTP_PORT = "22";
 	private static final String USERNAME = "guestuser";
 	private static final String PASSWORD = "guestuser";
@@ -62,8 +62,7 @@ public class Node {
 							Integer.parseInt(sendFileParams[2]),
 							sendFileParams[3], sendFileParams[4],
 							sendFileParams[5], sendFileParams[6], SftpChannel.NODE, USERNAME, NODE_NAME, 
-							NODE_CONTEXT_PATH, sendFileParams[7]);
-					printWriter.println("CONFIRMTASK," + NODE_NAME);
+							NODE_CONTEXT_PATH, sendFileParams[7], printWriter);
 				}
 			}
 		}

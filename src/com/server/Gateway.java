@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
@@ -79,7 +80,10 @@ public class Gateway {
 				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				printWriter = new PrintWriter(socket.getOutputStream(), true);
 
+				
 				String[] registerDetails = in.readLine().split(",");
+				System.out.println(registerDetails[1] + " has joined the cluster.");
+				
 				NodeRegistry.register(registerDetails[1], 
 									  new SftpDetails(registerDetails[2], 
 													  Long.parseLong(registerDetails[3]),
@@ -98,11 +102,11 @@ public class Gateway {
 					    NodeRegistry.confirmFinishTask(nodeName);
 					}
 				}
-			} catch (IOException e) {
-				System.out.println(e);
-			} catch (NullPointerException npe) {
+			} catch (NullPointerException | SocketException npe) {
 				System.out.println("Gateway:" + nodeName + " just died!");
 				NodeRegistry.setDead(nodeName);
+			} catch (IOException e) {
+				System.out.println(e);
 			} finally {
 				try {
 					socket.close();
@@ -164,7 +168,7 @@ public class Gateway {
                         	SftpService.sendFile(randomNode.sftpDetails.host, 
 			                        			(int)randomNode.sftpDetails.port,
 			                        			randomNode.sftpDetails.username,
-			                        			randomNode.sftpDetails.password, randomNode.nodeName, filename, SftpChannel.GATEWAY);
+			                        			randomNode.sftpDetails.password, randomNode.nodeName, filename, SftpChannel.GATEWAY, randomNode.nodeContextPath);
                         	randomNode.filenames.add(filename);
                         }
                     }
